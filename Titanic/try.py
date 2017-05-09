@@ -333,6 +333,135 @@ def shuffle():
     return X, Y
 
 
+def featureChange1():
+    filepath = './washed3.csv'
+    data = pd.read_csv(filepath).values
+    newData = []
+    for i in xrange(len(data)):
+        one = []
+        one.append(data[i][0])
+        one.append(data[i][1])
+        if data[i][2] == 1:
+            one.append(1)
+            one.append(0)
+            one.append(0)
+        elif data[i][2] == 2:
+            one.append(0)
+            one.append(1)
+            one.append(0)
+        elif data[i][2] == 3:
+            one.append(0)
+            one.append(0)
+            one.append(1)
+        one.append(data[i][3])
+        if data[i][4] == 1:
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(1)
+        one.append(data[i][5])
+        one.append(data[i][6])
+        one.append(data[i][7])
+        one.append(data[i][8])
+        if data[i][9] == 1:
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(1)
+        if data[i][10] == 1:
+            one.append(1)
+            one.append(0)
+            one.append(0)
+        elif data[i][10] == 2:
+            one.append(0)
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(0)
+            one.append(1)
+        newData.append(one)
+    df = pd.DataFrame(newData, columns=['PassengerId', 'Survived', 'Pclass1', 'Pclass2', 'Pclass3',
+                                        'Title', 'Male', 'Female', 'Age', 'SibSp', 'Parch', 'Fare', 'Cabin',
+                                        'NotCabin', 'Embarked_C', 'Embarked_Q', 'Embarked_S'])
+    df.to_csv('./trainFeature.csv')
+
+def featureChange2():
+    filepath = './test2.csv'
+    data = pd.read_csv(filepath).values
+    newData = []
+    for i in xrange(len(data)):
+        one = []
+        if data[i][0] == 1:
+            one.append(1)
+            one.append(0)
+            one.append(0)
+        elif data[i][0] == 2:
+            one.append(0)
+            one.append(1)
+            one.append(0)
+        elif data[i][0] == 3:
+            one.append(0)
+            one.append(0)
+            one.append(1)
+        one.append(data[i][1])
+        if data[i][2] == 1:
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(1)
+        one.append(data[i][3])
+        one.append(data[i][4])
+        one.append(data[i][5])
+        one.append(data[i][6])
+        if data[i][7] == 1:
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(1)
+        if data[i][8] == 1:
+            one.append(1)
+            one.append(0)
+            one.append(0)
+        elif data[i][8] == 2:
+            one.append(0)
+            one.append(1)
+            one.append(0)
+        else:
+            one.append(0)
+            one.append(0)
+            one.append(1)
+        newData.append(one)
+    df = pd.DataFrame(newData, columns=['Pclass1', 'Pclass2', 'Pclass3',
+                                        'Title', 'Male', 'Female', 'Age', 'SibSp', 'Parch', 'Fare', 'Cabin',
+                                        'NotCabin', 'Embarked_C', 'Embarked_Q', 'Embarked_S'])
+    df.to_csv('./testFeature.csv')
+
+def pre1():
+    filepath = './trainFeature.csv'
+    data = pd.read_csv(filepath).values
+    print(np.shape(data))
+    train_set = []
+    validation_set = []
+    for i in xrange(700):
+        train_set.append(data[i])
+    for i in xrange(700, len(data)):
+        validation_set.append(data[i])
+    # print(np.shape(train_set))
+    # print(np.shape(validation_set))
+    df1 = pd.DataFrame(train_set, columns=['PassengerId', 'Survived', 'Pclass1', 'Pclass2', 'Pclass3',
+                                        'Title', 'Male', 'Female', 'Age', 'SibSp', 'Parch', 'Fare', 'Cabin',
+                                        'NotCabin', 'Embarked_C', 'Embarked_Q', 'Embarked_S'])
+    df1.to_csv('./train_set.csv')
+    df2 = pd.DataFrame(validation_set, columns=['PassengerId', 'Survived', 'Pclass1', 'Pclass2', 'Pclass3',
+                                        'Title', 'Male', 'Female', 'Age', 'SibSp', 'Parch', 'Fare', 'Cabin',
+                                        'NotCabin', 'Embarked_C', 'Embarked_Q', 'Embarked_S'])
+    df2.to_csv('./validation_set.csv')
+
 def train(batch_size=100):
     # filepath = './washed3.csv'
     # data = pd.read_csv(filepath).values
@@ -377,20 +506,20 @@ def train(batch_size=100):
             epoch += 1
     print("The best accuracy: ", best)
 
-def NNtrain(batch_size=50, epochs=100):
+def NNtrain(batch_size=50, epochs=100, rate=0.003):
     '''
     We construct a three layers model: input layer, hidden layer and output layer
     :param batch_size:
     :return:
     '''
 
-    testData = pd.read_csv('./test2.csv')
+    testData = pd.read_csv('./testFeature.csv')
 
-    x = tf.placeholder(tf.float32, [None, 9], name="data")
+    x = tf.placeholder(tf.float32, [None, 15], name="data")
     y_ = tf.placeholder(tf.float32, [None, 2], name='label')
 
     with tf.name_scope("layer_in"):
-        W1 = tf.Variable(tf.truncated_normal([9, 256],stddev=0.1), name="W1")
+        W1 = tf.Variable(tf.truncated_normal([15, 256],stddev=0.1), name="W1")
         b1 = tf.Variable(tf.truncated_normal([256], stddev=0.1), name="b1")
         hidden1 = tf.nn.relu(tf.matmul(x, W1) + b1, name="hidden1")
     with tf.name_scope("layer_hidden_1"):
@@ -400,7 +529,7 @@ def NNtrain(batch_size=50, epochs=100):
     with tf.name_scope("layer_hidden_2"):
         W3 = tf.Variable(tf.truncated_normal([128, 64]), name="W3")
         b3 = tf.Variable(tf.truncated_normal([64]), name="b3")
-        hidden3 = tf.nn.relu(tf.matmul(hidden2, W3) + b3)
+        hidden3 = tf.nn.relu(tf.matmul(hidden2, W3) + b3, name="hidden3")
 
     with tf.name_scope("layer_out"):
         W4 = tf.Variable(tf.truncated_normal([64, 2], stddev=0.1), name="W4")
@@ -409,17 +538,18 @@ def NNtrain(batch_size=50, epochs=100):
 
     with tf.name_scope("cost"):
         vars = tf.trainable_variables()
-        lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if 'b' not in v.name]) * 0.005
+        lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if 'b' not in v.name]) * 0.05
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_)+lossL2)
         # cross_entropy = - tf.reduce_sum(y_ * tf.log(y + 1e-10))
     with tf.name_scope("train"):
-        train_step = tf.train.GradientDescentOptimizer(learning_rate=0.003).minimize(cost)
+        train_step = tf.train.GradientDescentOptimizer(learning_rate=rate).minimize(cost)
     with tf.name_scope("predict"):
         predict_step = tf.argmax(y, 1)
 
     with tf.name_scope("save_params"):
         saver = tf.train.Saver()
-    init = tf.global_variables_initializer()
+    # init = tf.global_variables_initializer()
+    init = tf.initialize_all_variables()
 
     with tf.Session() as sess:
         sess.run(init)
@@ -427,21 +557,22 @@ def NNtrain(batch_size=50, epochs=100):
         best = 0
         while epoch <= epochs:
             print("epoch: ", epoch)
-            X, Y = shuffle()
-            for i in xrange(0, 890, batch_size):
-                sess.run(train_step, feed_dict={x: X[i:i + batch_size], y_: Y[i:i + batch_size]})
+            train_X, train_Y = shuffle()
+            validation_X, validation_Y = getValidation()
+            for i in xrange(0, 700, batch_size):
+                sess.run(train_step, feed_dict={x: train_X[i:i + batch_size], y_: train_Y[i:i + batch_size]})
                 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
                 print("mini_batch", i, "~", i + batch_size, "of", epoch, "epochs")
-                print("accuracy: {}, the current best accuracy: {}".format(sess.run(accuracy, feed_dict={x: X, y_: Y}), best))
+                print("accuracy on train set: {}".format(sess.run(accuracy, feed_dict={x: train_X, y_: train_Y})))
+                print("accuracy on validation set: {}, the current best accuracy: {}".format(sess.run(accuracy, feed_dict={x: validation_X, y_: validation_Y}), best))
                 # best = max(best, sess.run(accuracy, feed_dict={x: X, y_: Y}))
-                if best < sess.run(accuracy, feed_dict={x: X, y_: Y}):
-                    best = sess.run(accuracy, feed_dict={x: X, y_: Y})
-                    saver.save(sess, "./save.ckpt")
+                if best < sess.run(accuracy, feed_dict={x: validation_X, y_: validation_Y}):
+                    best = sess.run(accuracy, feed_dict={x: validation_X, y_: validation_Y})
+                    # saver.save(sess, "./save.ckpt")
                     savePredict(sess.run(predict_step, feed_dict={x: testData}))
             epoch += 1
         print("The best accuracy: ", best)
-
 
 def savePredict(predict):
     data = []
